@@ -3,9 +3,6 @@ import { MessageCircle, Target, Users, TrendingUp } from "lucide-react";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 
 export default function NosotrosPage() {
-  const whatsappNumber = "15551234567";
-  const whatsappMessage = encodeURIComponent("Hola, me gustaría conocer más sobre Liquidation Warehouse");
-
   return (
     <div className="min-h-screen bg-white">
       <div className="pt-32 pb-20 px-4">
@@ -88,7 +85,7 @@ export default function NosotrosPage() {
                 className="border-2 border-white text-white hover:bg-white hover:text-brand px-8 py-6 text-lg"
               >
                 <a
-                  href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                  href="https://wa.link/pg0nbh"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

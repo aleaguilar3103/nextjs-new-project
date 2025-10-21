@@ -2,9 +2,6 @@ import Link from "next/link";
 import { MessageCircle, Mail, Phone, MapPin } from "lucide-react";
 
 export default function Footer() {
-  const whatsappNumber = "50671910009";
-  const whatsappMessage = encodeURIComponent("Hola, me gustaría obtener más información");
-
   return (
     <footer className="bg-gradient-to-br from-brand to-brand-dark text-white py-12 px-4">
       <div className="container mx-auto">
@@ -76,7 +73,7 @@ export default function Footer() {
           <div>
             <h3 className="font-bold text-lg mb-4">Contáctanos</h3>
             <a
-              href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+              href="https://wa.link/pg0nbh"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"

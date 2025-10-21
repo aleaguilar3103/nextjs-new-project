@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Upload, X, Package, Layers, Star, Grid3x3, RefreshCw, Grid, List } from "lucide-react";
+import { Plus, Edit, Trash2, Upload, X, Package, Layers, Star, Grid3x3, RefreshCw, Grid, List, ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -22,6 +22,9 @@ export default function AdminProductosPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentProductImages, setCurrentProductImages] = useState<string[]>([]);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -184,6 +187,21 @@ export default function AdminProductosPage() {
     }
   };
 
+  const openImageViewer = (product: Product, startIndex: number = 0) => {
+    const allImages = [product.image_url, ...(product.additional_images || [])];
+    setCurrentProductImages(allImages);
+    setCurrentImageIndex(startIndex);
+    setImageViewerOpen(true);
+  };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % currentProductImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + currentProductImages.length) % currentProductImages.length);
+  };
+
   const totalProducts = products.length;
   const totalPallets = products.reduce((sum, p) => sum + p.quantity, 0);
   const featuredProducts = products.filter(p => p.featured).length;
@@ -192,6 +210,45 @@ export default function AdminProductosPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-8 px-4 pt-32">
       <Toaster />
+      
+      {/* Image Viewer Modal */}
+      <Dialog open={imageViewerOpen} onOpenChange={setImageViewerOpen}>
+        <DialogContent className="max-w-5xl h-[90vh] bg-black/95">
+          <div className="relative h-full flex items-center justify-center">
+            <img
+              src={currentProductImages[currentImageIndex]}
+              alt="Product"
+              className="max-h-full max-w-full object-contain"
+            />
+            
+            {currentProductImages.length > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white"
+                  onClick={prevImage}
+                >
+                  <ChevronLeft className="h-8 w-8" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white"
+                  onClick={nextImage}
+                >
+                  <ChevronRight className="h-8 w-8" />
+                </Button>
+                
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/10 px-4 py-2 rounded-full text-white">
+                  {currentImageIndex + 1} / {currentProductImages.length}
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -329,7 +386,7 @@ export default function AdminProductosPage() {
                   </div>
 
                   <div>
-                    <Label>Imagen Principal {!editingProduct && "*"}</Label>
+                    <Label htmlFor="mainImage">Imagen Principal {!editingProduct && "*"}</Label>
                     <div className="mt-2">
                       <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                         <div className="flex flex-col items-center">
@@ -459,12 +516,18 @@ export default function AdminProductosPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product) => (
               <Card key={product.id} className="overflow-hidden hover:shadow-xl transition group">
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-48 overflow-hidden group">
                   <img
                     src={product.image_url}
                     alt={product.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                   />
+                  <button
+                    onClick={() => openImageViewer(product, 0)}
+                    className="absolute inset-0 bg-black/0 hover:bg-black/40 transition flex items-center justify-center opacity-0 hover:opacity-100"
+                  >
+                    <ZoomIn className="h-8 w-8 text-white" />
+                  </button>
                   {product.featured && (
                     <div className="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
                       <Star className="h-3 w-3 fill-current" />
@@ -476,14 +539,20 @@ export default function AdminProductosPage() {
                   <h3 className="font-bold text-lg mb-1 text-gray-800">{product.title}</h3>
                   <p className="text-sm text-brand font-semibold mb-2">{product.category}</p>
                   <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
-                  <div className="flex gap-2 text-xs text-gray-500 mb-4">
-                    <span className="bg-gray-100 px-2 py-1 rounded">
-                      {product.quantity} pallets
-                    </span>
-                    <span className="bg-gray-100 px-2 py-1 rounded">
-                      {product.units_per_pallet} unidades
-                    </span>
-                  </div>
+                  {(product.quantity > 0 || product.units_per_pallet > 0) && (
+                    <div className="flex gap-2 text-xs text-gray-500 mb-4">
+                      {product.quantity > 0 && (
+                        <span className="bg-gray-100 px-2 py-1 rounded">
+                          {product.quantity} pallets
+                        </span>
+                      )}
+                      {product.units_per_pallet > 0 && (
+                        <span className="bg-gray-100 px-2 py-1 rounded">
+                          {product.units_per_pallet} unidades
+                        </span>
+                      )}
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -527,19 +596,28 @@ export default function AdminProductosPage() {
                 {products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
-                      <img
-                        src={product.image_url}
-                        alt={product.title}
-                        className="w-16 h-16 object-cover rounded"
-                      />
+                      <div className="relative group cursor-pointer" onClick={() => openImageViewer(product, 0)}>
+                        <img
+                          src={product.image_url}
+                          alt={product.title}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                        <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition flex items-center justify-center opacity-0 group-hover:opacity-100 rounded">
+                          <ZoomIn className="h-5 w-5 text-white" />
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">{product.title}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{product.category}</Badge>
                     </TableCell>
                     <TableCell className="text-sm text-gray-600">{product.condition}</TableCell>
-                    <TableCell className="text-center">{product.quantity}</TableCell>
-                    <TableCell className="text-center">{product.units_per_pallet}</TableCell>
+                    <TableCell className="text-center">
+                      {product.quantity > 0 ? product.quantity : "-"}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {product.units_per_pallet > 0 ? product.units_per_pallet : "-"}
+                    </TableCell>
                     <TableCell className="text-center">
                       {product.featured ? (
                         <Badge className="bg-yellow-500">

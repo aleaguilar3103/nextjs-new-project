@@ -16,9 +16,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleWhatsAppClick = () => {
-    const message = `Hola, estoy interesado en el producto: ${product.title}`;
-    const whatsappUrl = `https://wa.me/18299999999?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, "_blank");
+    window.open("https://wa.link/pg0nbh", "_blank");
   };
 
   return (
@@ -42,10 +40,12 @@ export default function ProductCard({ product }: ProductCardProps) {
               <span className="text-gray-600">Condición:</span>
               <span className="font-semibold text-gray-900">{product.condition}</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Cantidad:</span>
-              <span className="font-semibold text-gray-900">{product.quantity} unidades</span>
-            </div>
+            {product.quantity > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Cantidad:</span>
+                <span className="font-semibold text-gray-900">{product.quantity} unidades</span>
+              </div>
+            )}
           </div>
           <Button
             onClick={(e) => {

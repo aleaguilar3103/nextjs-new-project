@@ -16,17 +16,9 @@ export default function ContactoPage() {
     message: "",
   });
 
-  const whatsappNumber = "15551234567";
-  const whatsappMessage = encodeURIComponent(
-    "Hola, me gustaría obtener más información",
-  );
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const message = encodeURIComponent(
-      `Hola, mi nombre es ${formData.name}. ${formData.message}`,
-    );
-    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
+    window.open("https://wa.link/pg0nbh", "_blank");
   };
 
   return (
@@ -157,7 +149,7 @@ export default function ContactoPage() {
                   className="w-full bg-green-500 hover:bg-green-600 text-white"
                 >
                   <a
-                    href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                    href="https://wa.link/pg0nbh"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

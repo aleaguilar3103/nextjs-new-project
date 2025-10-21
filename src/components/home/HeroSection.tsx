@@ -37,7 +37,7 @@ export default function HeroSection() {
             className="bg-gradient-to-r from-brand to-brand-dark hover:from-brand-dark hover:to-brand text-white px-8 py-6 text-lg shadow-xl font-semibold"
           >
             <a
-              href="https://wa.link/zvmnhy"
+              href="https://wa.link/pg0nbh"
               target="_blank"
               rel="noopener noreferrer"
             >
