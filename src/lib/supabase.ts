@@ -3,13 +3,26 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase environment variables are not set');
+// Create client with empty strings if env vars are missing (for build time)
+// Runtime checks will handle missing credentials
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);
+
+// Helper to check if Supabase is properly configured
+export function isSupabaseConfigured(): boolean {
+  return !!(supabaseUrl && supabaseAnonKey && 
+    supabaseUrl !== 'https://placeholder.supabase.co' && 
+    supabaseAnonKey !== 'placeholder-key');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 export async function uploadProductImage(file: File): Promise<string | null> {
+  if (!isSupabaseConfigured()) {
+    console.error('Supabase is not configured');
+    return null;
+  }
+
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random()}.${fileExt}`;
   const filePath = `${fileName}`;
@@ -31,6 +44,11 @@ export async function uploadProductImage(file: File): Promise<string | null> {
 }
 
 export async function deleteProductImage(imageUrl: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) {
+    console.error('Supabase is not configured');
+    return false;
+  }
+
   const fileName = imageUrl.split('/').pop();
   if (!fileName) return false;
 

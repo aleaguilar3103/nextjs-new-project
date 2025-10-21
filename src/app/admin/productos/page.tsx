@@ -1,32 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase, uploadProductImage } from "@/lib/supabase";
+import { getProducts, addProduct, updateProduct, deleteProduct, Product } from "@/lib/products";
+import { uploadProductImage } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Upload, X, Plus, Edit, Package, TrendingUp, Star, Layers } from "lucide-react";
-
-interface Product {
-  id: string;
-  title: string;
-  category: string;
-  description: string;
-  condition: string;
-  quantity: number;
-  units_per_pallet: number;
-  image_url: string;
-  additional_images: string[];
-  featured: boolean;
-}
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, Edit, Trash2, Upload, X, Package, Layers, Star, Grid3x3 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function AdminProductosPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const { toast } = useToast();
+
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -36,6 +29,7 @@ export default function AdminProductosPage() {
     units_per_pallet: 0,
     featured: false,
   });
+
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [additionalImages, setAdditionalImages] = useState<File[]>([]);
   const [mainImagePreview, setMainImagePreview] = useState<string>("");
@@ -46,14 +40,8 @@ export default function AdminProductosPage() {
   }, []);
 
   const fetchProducts = async () => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (!error && data) {
-      setProducts(data);
-    }
+    const data = await getProducts();
+    setProducts(data);
   };
 
   const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,12 +77,11 @@ export default function AdminProductosPage() {
     });
     setMainImagePreview(product.image_url);
     setAdditionalPreviews(product.additional_images || []);
-    setShowForm(true);
+    setDialogOpen(true);
   };
 
-  const cancelEdit = () => {
+  const resetForm = () => {
     setEditingProduct(null);
-    setShowForm(false);
     setFormData({
       title: "",
       category: "",
@@ -108,6 +95,7 @@ export default function AdminProductosPage() {
     setAdditionalImages([]);
     setMainImagePreview("");
     setAdditionalPreviews([]);
+    setDialogOpen(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,6 +104,7 @@ export default function AdminProductosPage() {
 
     try {
       let mainImageUrl = editingProduct?.image_url || "";
+      
       if (mainImage) {
         const url = await uploadProductImage(mainImage);
         if (url) mainImageUrl = url;
@@ -123,17 +112,15 @@ export default function AdminProductosPage() {
 
       const additionalImageUrls: string[] = [];
       
-      // Keep existing URLs that weren't removed
       if (editingProduct) {
         const existingUrls = editingProduct.additional_images || [];
-        existingUrls.forEach((url, index) => {
+        existingUrls.forEach((url) => {
           if (additionalPreviews.includes(url)) {
             additionalImageUrls.push(url);
           }
         });
       }
 
-      // Upload new images
       for (const file of additionalImages) {
         const url = await uploadProductImage(file);
         if (url) additionalImageUrls.push(url);
@@ -146,57 +133,243 @@ export default function AdminProductosPage() {
       };
 
       if (editingProduct) {
-        // Update existing product
-        const { error } = await supabase
-          .from("products")
-          .update(productData)
-          .eq("id", editingProduct.id);
-
-        if (error) throw error;
+        await updateProduct(editingProduct.id, productData);
+        toast({
+          title: "Producto actualizado",
+          description: "El producto se actualizó correctamente",
+        });
       } else {
-        // Create new product
-        const { error } = await supabase.from("products").insert(productData);
-        if (error) throw error;
+        await addProduct(productData);
+        toast({
+          title: "Producto creado",
+          description: "El producto se creó correctamente",
+        });
       }
 
-      cancelEdit();
+      resetForm();
       fetchProducts();
     } catch (error) {
-      console.error("Error saving product:", error);
+      toast({
+        title: "Error",
+        description: "Hubo un error al guardar el producto",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteProduct = async (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("¿Estás seguro de eliminar este producto?")) return;
     
-    const { error } = await supabase.from("products").delete().eq("id", id);
-    if (!error) {
+    const success = await deleteProduct(id);
+    if (success) {
+      toast({
+        title: "Producto eliminado",
+        description: "El producto se eliminó correctamente",
+      });
       fetchProducts();
+    } else {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el producto",
+        variant: "destructive",
+      });
     }
   };
 
-  // Calculate statistics
   const totalProducts = products.length;
   const totalPallets = products.reduce((sum, p) => sum + p.quantity, 0);
   const featuredProducts = products.filter(p => p.featured).length;
   const categories = new Set(products.map(p => p.category)).size;
 
   return (
-    <div className="py-8 px-4 bg-white min-h-screen">
-      <div className="container mx-auto max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-8 px-4">
+      <Toaster />
+      <div className="container mx-auto max-w-7xl">
+        {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-brand">Panel de Administración</h1>
-          <Button onClick={() => { setEditingProduct(null); setShowForm(!showForm); }}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nuevo Producto
-          </Button>
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-brand to-brand-dark bg-clip-text text-transparent">
+              Panel de Administración
+            </h1>
+            <p className="text-gray-600 mt-2">Gestiona tu catálogo de productos</p>
+          </div>
+          
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-brand to-brand-dark hover:opacity-90"
+                onClick={() => resetForm()}
+              >
+                <Plus className="mr-2 h-5 w-5" />
+                Agregar Producto
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-2xl">
+                  {editingProduct ? "Editar Producto" : "Nuevo Producto"}
+                </DialogTitle>
+              </DialogHeader>
+              
+              <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="title">Título *</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      required
+                      placeholder="Ej: Pallet de Electrónicos"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="category">Categoría *</Label>
+                    <Input
+                      id="category"
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      required
+                      placeholder="Ej: Electrónicos"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="condition">Condición</Label>
+                    <Input
+                      id="condition"
+                      value={formData.condition}
+                      onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
+                      placeholder="Ej: Nuevo, Usado, Reacondicionado"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="quantity">Cantidad de Pallets</Label>
+                    <Input
+                      id="quantity"
+                      type="number"
+                      value={formData.quantity}
+                      onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                      placeholder="0"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="units">Unidades por Pallet</Label>
+                    <Input
+                      id="units"
+                      type="number"
+                      value={formData.units_per_pallet}
+                      onChange={(e) => setFormData({ ...formData, units_per_pallet: parseInt(e.target.value) || 0 })}
+                      placeholder="0"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2 pt-8">
+                    <input
+                      type="checkbox"
+                      id="featured"
+                      checked={formData.featured}
+                      onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <Label htmlFor="featured" className="cursor-pointer">Producto Destacado</Label>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Descripción</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={4}
+                    placeholder="Describe el producto..."
+                  />
+                </div>
+
+                <div>
+                  <Label>Imagen Principal {!editingProduct && "*"}</Label>
+                  <div className="mt-2">
+                    <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                      <div className="flex flex-col items-center">
+                        <Upload className="h-8 w-8 text-gray-400" />
+                        <span className="mt-2 text-sm text-gray-500">
+                          {editingProduct ? "Cambiar imagen principal" : "Subir imagen principal"}
+                        </span>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleMainImageChange}
+                        required={!editingProduct}
+                      />
+                    </label>
+                    {mainImagePreview && (
+                      <div className="mt-4">
+                        <img src={mainImagePreview} alt="Preview" className="h-40 rounded-lg object-cover" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Imágenes Adicionales</Label>
+                  <div className="mt-2">
+                    <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                      <div className="flex flex-col items-center">
+                        <Upload className="h-8 w-8 text-gray-400" />
+                        <span className="mt-2 text-sm text-gray-500">Subir imágenes adicionales</span>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        multiple
+                        onChange={handleAdditionalImagesChange}
+                      />
+                    </label>
+                    {additionalPreviews.length > 0 && (
+                      <div className="mt-4 grid grid-cols-4 gap-4">
+                        {additionalPreviews.map((preview, index) => (
+                          <div key={index} className="relative">
+                            <img src={preview} alt={`Preview ${index}`} className="h-24 w-full object-cover rounded-lg" />
+                            <button
+                              type="button"
+                              onClick={() => removeAdditionalImage(index)}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <Button type="submit" disabled={loading} className="flex-1">
+                    {loading ? "Guardando..." : editingProduct ? "Actualizar Producto" : "Guardar Producto"}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={resetForm} className="flex-1">
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6 bg-gradient-to-br from-brand/5 to-white border-2 border-brand/20">
+          <Card className="p-6 bg-gradient-to-br from-blue-50 to-white border-2 border-blue-100 hover:shadow-lg transition">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Productos</p>
@@ -208,225 +381,104 @@ export default function AdminProductosPage() {
             </div>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-brand/5 to-white border-2 border-brand/20">
+          <Card className="p-6 bg-gradient-to-br from-purple-50 to-white border-2 border-purple-100 hover:shadow-lg transition">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Pallets</p>
-                <p className="text-3xl font-bold text-brand">{totalPallets}</p>
+                <p className="text-3xl font-bold text-purple-600">{totalPallets}</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-brand to-brand-dark rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center">
                 <Layers className="w-6 h-6 text-white" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-brand/5 to-white border-2 border-brand/20">
+          <Card className="p-6 bg-gradient-to-br from-yellow-50 to-white border-2 border-yellow-100 hover:shadow-lg transition">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Destacados</p>
-                <p className="text-3xl font-bold text-brand">{featuredProducts}</p>
+                <p className="text-3xl font-bold text-yellow-600">{featuredProducts}</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-brand to-brand-dark rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-full flex items-center justify-center">
                 <Star className="w-6 h-6 text-white" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-brand/5 to-white border-2 border-brand/20">
+          <Card className="p-6 bg-gradient-to-br from-green-50 to-white border-2 border-green-100 hover:shadow-lg transition">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Categorías</p>
-                <p className="text-3xl font-bold text-brand">{categories}</p>
+                <p className="text-3xl font-bold text-green-600">{categories}</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-brand to-brand-dark rounded-full flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center">
+                <Grid3x3 className="w-6 h-6 text-white" />
               </div>
             </div>
           </Card>
         </div>
 
-        {showForm && (
-          <Card className="p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4">
-              {editingProduct ? "Editar Producto" : "Nuevo Producto"}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="title">Título *</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="category">Categoría *</Label>
-                  <Input
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="condition">Condición</Label>
-                  <Input
-                    id="condition"
-                    value={formData.condition}
-                    onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="quantity">Cantidad</Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="units">Unidades por Pallet</Label>
-                  <Input
-                    id="units"
-                    type="number"
-                    value={formData.units_per_pallet}
-                    onChange={(e) => setFormData({ ...formData, units_per_pallet: parseInt(e.target.value) })}
-                  />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="featured"
-                    checked={formData.featured}
-                    onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="h-4 w-4"
-                  />
-                  <Label htmlFor="featured">Producto Destacado</Label>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="description">Descripción</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={4}
-                />
-              </div>
-
-              <div>
-                <Label>Imagen Principal {!editingProduct && "*"}</Label>
-                <div className="mt-2">
-                  <label className="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
-                    <div className="flex flex-col items-center">
-                      <Upload className="h-8 w-8 text-gray-400" />
-                      <span className="mt-2 text-sm text-gray-500">
-                        {editingProduct ? "Cambiar imagen principal" : "Subir imagen principal"}
-                      </span>
-                    </div>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleMainImageChange}
-                      required={!editingProduct}
-                    />
-                  </label>
-                  {mainImagePreview && (
-                    <div className="mt-4">
-                      <img src={mainImagePreview} alt="Preview" className="h-40 rounded-lg" />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <Label>Imágenes Adicionales</Label>
-                <div className="mt-2">
-                  <label className="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
-                    <div className="flex flex-col items-center">
-                      <Upload className="h-8 w-8 text-gray-400" />
-                      <span className="mt-2 text-sm text-gray-500">Subir imágenes adicionales</span>
-                    </div>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      multiple
-                      onChange={handleAdditionalImagesChange}
-                    />
-                  </label>
-                  {additionalPreviews.length > 0 && (
-                    <div className="mt-4 grid grid-cols-4 gap-4">
-                      {additionalPreviews.map((preview, index) => (
-                        <div key={index} className="relative">
-                          <img src={preview} alt={`Preview ${index}`} className="h-24 w-full object-cover rounded-lg" />
-                          <button
-                            type="button"
-                            onClick={() => removeAdditionalImage(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Guardando..." : editingProduct ? "Actualizar Producto" : "Guardar Producto"}
-                </Button>
-                <Button type="button" variant="outline" onClick={cancelEdit}>
-                  Cancelar
-                </Button>
-              </div>
-            </form>
-          </Card>
-        )}
-
+        {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
-            <Card key={product.id} className="p-4">
-              <img
-                src={product.image_url}
-                alt={product.title}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-              <h3 className="font-bold text-lg mb-2">{product.title}</h3>
-              <p className="text-sm text-gray-600 mb-2">{product.category}</p>
-              <p className="text-sm text-gray-500 mb-4 line-clamp-2">{product.description}</p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => startEdit(product)}
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Editar
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => deleteProduct(product.id)}
-                >
-                  Eliminar
-                </Button>
+            <Card key={product.id} className="overflow-hidden hover:shadow-xl transition group">
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={product.image_url}
+                  alt={product.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                />
+                {product.featured && (
+                  <div className="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-current" />
+                    Destacado
+                  </div>
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-1 text-gray-800">{product.title}</h3>
+                <p className="text-sm text-brand font-semibold mb-2">{product.category}</p>
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+                <div className="flex gap-2 text-xs text-gray-500 mb-4">
+                  <span className="bg-gray-100 px-2 py-1 rounded">
+                    {product.quantity} pallets
+                  </span>
+                  <span className="bg-gray-100 px-2 py-1 rounded">
+                    {product.units_per_pallet} unidades
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => startEdit(product)}
+                    className="flex-1"
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Editar
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(product.id)}
+                    className="flex-1"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Eliminar
+                  </Button>
+                </div>
               </div>
             </Card>
           ))}
         </div>
+
+        {products.length === 0 && (
+          <div className="text-center py-16">
+            <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No hay productos</h3>
+            <p className="text-gray-500">Comienza agregando tu primer producto</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MessageCircle, Mail, Phone, MapPin } from "lucide-react";
 
 export default function Footer() {
-  const whatsappNumber = "15551234567";
+  const whatsappNumber = "50671910009";
   const whatsappMessage = encodeURIComponent("Hola, me gustaría obtener más información");
 
   return (
@@ -57,15 +57,18 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center space-x-2 text-white/70">
                 <Phone className="w-4 h-4" />
-                <span className="text-sm">+1 (555) 123-4567</span>
+                <span className="text-sm">+506 7191 0009</span>
               </li>
               <li className="flex items-center space-x-2 text-white/70">
                 <Mail className="w-4 h-4" />
-                <span className="text-sm">info@liquidationwarehouse.com</span>
+                <span className="text-sm">info@aoliquidationwarehouse.com</span>
               </li>
-              <li className="flex items-center space-x-2 text-white/70">
-                <MapPin className="w-4 h-4" />
-                <span className="text-sm">123 Warehouse Street</span>
+              <li className="flex items-start space-x-2 text-white/70">
+                <MapPin className="w-4 h-4 mt-0.5" />
+                <div className="text-sm">
+                  <div>San José Costa Rica</div>
+                  <div>Los Angeles California</div>
+                </div>
               </li>
             </ul>
           </div>
