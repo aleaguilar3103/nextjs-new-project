@@ -24,10 +24,11 @@ export default function MisionVisionPage() {
                 <h2 className="text-4xl font-bold">Nuestra Misión</h2>
               </div>
               <p className="text-xl text-white/80 leading-relaxed">
-                Proporcionar a mayoristas y revendedores acceso a pallets de liquidación 
-                de alta calidad a precios competitivos, facilitando el crecimiento de sus 
-                negocios a través de productos de marcas reconocidas, servicio excepcional 
-                y relaciones comerciales transparentes y duraderas.
+                Ayudamos a emprendedores, revendedores y negocios en crecimiento
+                a acceder a productos de calidad a precios de liquidación.
+                Brindamos programas flexibles, transparencia y acompañamiento
+                personalizado. Nos enfocamos en ofrecer valor real para que cada
+                cliente pueda crecer con seguridad y confianza.
               </p>
             </section>
 
@@ -36,13 +37,18 @@ export default function MisionVisionPage() {
                 <div className="w-16 h-16 bg-gradient-to-br from-brand to-brand-dark rounded-full flex items-center justify-center mr-4">
                   <Eye className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-gray-900">Nuestra Visión</h2>
+                <h2 className="text-4xl font-bold text-gray-900">
+                  Nuestra Visión
+                </h2>
               </div>
               <p className="text-xl text-gray-600 leading-relaxed">
-                Ser el líder reconocido en la industria de liquidación mayorista, 
-                expandiendo nuestra red de distribución a nivel nacional e internacional, 
-                y siendo la primera opción para mayoristas que buscan oportunidades 
-                rentables y productos de calidad excepcional.
+                Queremos transformar la forma en que se accede a la mercadería
+                de saldos y liquidaciones en Costa Rica y Latinoamérica.
+                Aspiramos a ser la empresa de confianza que impulsa a miles de
+                emprendedores y negocios a alcanzar su máximo potencial,
+                conectando oportunidades reales con personas decididas a crecer.
+                Buscamos construir una comunidad sólida, donde cada cliente
+                encuentre en nosotros un socio estratégico para su éxito.
               </p>
             </section>
 
@@ -56,11 +62,13 @@ export default function MisionVisionPage() {
                     <div className="w-12 h-12 bg-gradient-to-br from-brand to-brand-dark rounded-full flex items-center justify-center mr-3">
                       <Lightbulb className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">Innovación</h3>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Innovación
+                    </h3>
                   </div>
                   <p className="text-gray-600">
-                    Constantemente buscamos nuevas formas de mejorar nuestros servicios 
-                    y ofrecer valor agregado a nuestros clientes.
+                    Constantemente buscamos nuevas formas de mejorar nuestros
+                    servicios y ofrecer valor agregado a nuestros clientes.
                   </p>
                 </div>
 
@@ -69,11 +77,13 @@ export default function MisionVisionPage() {
                     <div className="w-12 h-12 bg-gradient-to-br from-brand to-brand-dark rounded-full flex items-center justify-center mr-3">
                       <Award className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">Excelencia</h3>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Excelencia
+                    </h3>
                   </div>
                   <p className="text-gray-600">
-                    Nos comprometemos a mantener los más altos estándares de calidad 
-                    en cada pallet que ofrecemos.
+                    Nos comprometemos a mantener los más altos estándares de
+                    calidad en cada pallet que ofrecemos.
                   </p>
                 </div>
 
@@ -82,11 +92,13 @@ export default function MisionVisionPage() {
                     <div className="w-12 h-12 bg-gradient-to-br from-brand to-brand-dark rounded-full flex items-center justify-center mr-3">
                       <Target className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">Integridad</h3>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Integridad
+                    </h3>
                   </div>
                   <p className="text-gray-600">
-                    Operamos con transparencia total, construyendo confianza a través 
-                    de prácticas comerciales éticas.
+                    Operamos con transparencia total, construyendo confianza a
+                    través de prácticas comerciales éticas.
                   </p>
                 </div>
 
@@ -95,11 +107,13 @@ export default function MisionVisionPage() {
                     <div className="w-12 h-12 bg-gradient-to-br from-brand to-brand-dark rounded-full flex items-center justify-center mr-3">
                       <Eye className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">Compromiso</h3>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Compromiso
+                    </h3>
                   </div>
                   <p className="text-gray-600">
-                    Estamos dedicados al éxito de nuestros clientes, brindando soporte 
-                    y asesoría personalizada.
+                    Estamos dedicados al éxito de nuestros clientes, brindando
+                    soporte y asesoría personalizada.
                   </p>
                 </div>
               </div>
@@ -107,7 +121,6 @@ export default function MisionVisionPage() {
           </div>
         </div>
       </div>
-      
       <FeaturedProducts />
     </div>
   );

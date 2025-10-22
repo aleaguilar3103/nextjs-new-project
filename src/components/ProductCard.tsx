@@ -31,19 +31,25 @@ export default function ProductCard({ product }: ProductCardProps) {
           <Badge className="absolute top-4 right-4 bg-gradient-to-r from-brand to-brand-dark text-white">
             {product.category}
           </Badge>
+          
+          <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold text-white ${
+            product.available ? 'bg-green-500' : 'bg-red-500'
+          }`}>
+            {product.available ? 'DISPONIBLE' : 'NO DISPONIBLE'}
+          </div>
         </div>
         <CardContent className="p-6">
           <h3 className="text-2xl font-bold mb-2 text-gray-900">{product.title}</h3>
           <p className="text-gray-600 mb-4 line-clamp-2">{product.description}</p>
           <div className="space-y-2 mb-4">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Condición:</span>
-              <span className="font-semibold text-gray-900">{product.condition}</span>
+              <span className="text-gray-600">Precio:</span>
+              <span className="font-semibold text-gray-900">Variado</span>
             </div>
             {product.quantity > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Cantidad:</span>
-                <span className="font-semibold text-gray-900">{product.quantity} unidades</span>
+                <span className="font-semibold text-gray-900">{product.quantity} pallets</span>
               </div>
             )}
           </div>

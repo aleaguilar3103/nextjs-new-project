@@ -1,16 +1,16 @@
-import { supabase, isSupabaseConfigured } from './supabase';
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export interface Product {
   id: string;
   title: string;
   category: string;
   description: string;
-  image_url: string;
-  additional_images?: string[];
-  condition: string;
   quantity: number;
   units_per_pallet: number;
+  image_url: string;
+  additional_images?: string[];
   featured: boolean;
+  available: boolean;
   created_at?: string;
   updated_at?: string;
 }

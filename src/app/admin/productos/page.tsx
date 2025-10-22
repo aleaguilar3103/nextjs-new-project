@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 
 export default function AdminProductosPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -31,10 +32,10 @@ export default function AdminProductosPage() {
     title: "",
     category: "",
     description: "",
-    condition: "",
     quantity: 0,
     units_per_pallet: 0,
     featured: false,
+    available: true,
   });
 
   const [mainImage, setMainImage] = useState<File | null>(null);
@@ -79,10 +80,10 @@ export default function AdminProductosPage() {
       title: product.title,
       category: product.category,
       description: product.description,
-      condition: product.condition,
       quantity: product.quantity,
       units_per_pallet: product.units_per_pallet,
       featured: product.featured,
+      available: product.available ?? true,
     });
     setMainImagePreview(product.image_url);
     setAdditionalPreviews(product.additional_images || []);
@@ -95,10 +96,10 @@ export default function AdminProductosPage() {
       title: "",
       category: "",
       description: "",
-      condition: "",
       quantity: 0,
       units_per_pallet: 0,
       featured: false,
+      available: true,
     });
     setMainImage(null);
     setAdditionalImages([]);
@@ -182,6 +183,28 @@ export default function AdminProductosPage() {
       toast({
         title: "Error",
         description: "No se pudo eliminar el producto",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleAvailability = async (product: Product) => {
+    const updatedProduct = {
+      ...product,
+      available: !product.available,
+    };
+    
+    const success = await updateProduct(product.id, updatedProduct);
+    if (success) {
+      toast({
+        title: "Disponibilidad actualizada",
+        description: `Producto marcado como ${!product.available ? 'disponible' : 'no disponible'}`,
+      });
+      fetchProducts();
+    } else {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la disponibilidad",
         variant: "destructive",
       });
     }
@@ -331,16 +354,6 @@ export default function AdminProductosPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="condition">Condición</Label>
-                      <Input
-                        id="condition"
-                        value={formData.condition}
-                        onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                        placeholder="Ej: Nuevo, Usado, Reacondicionado"
-                      />
-                    </div>
-
-                    <div>
                       <Label htmlFor="quantity">Cantidad de Pallets</Label>
                       <Input
                         id="quantity"
@@ -361,16 +374,35 @@ export default function AdminProductosPage() {
                         placeholder="0"
                       />
                     </div>
+                  </div>
 
-                    <div className="flex items-center space-x-2 pt-8">
+                  <div className="space-y-4 bg-gray-50 p-6 rounded-lg border-2 border-gray-200">
+                    <h3 className="font-semibold text-gray-900 text-lg mb-4">Opciones del Producto</h3>
+                    
+                    <div className="flex items-center space-x-3 p-4 bg-white border-2 border-gray-300 rounded-lg hover:border-brand transition cursor-pointer">
                       <input
                         type="checkbox"
                         id="featured"
                         checked={formData.featured}
                         onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                        className="h-4 w-4 rounded border-gray-300"
+                        className="h-6 w-6 rounded border-gray-400 text-brand focus:ring-brand cursor-pointer"
                       />
-                      <Label htmlFor="featured" className="cursor-pointer">Producto Destacado</Label>
+                      <Label htmlFor="featured" className="cursor-pointer font-medium text-gray-900 text-base flex-1">
+                        ⭐ Marcar como Producto Destacado
+                      </Label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3 p-4 bg-white border-2 border-gray-300 rounded-lg hover:border-green-500 transition cursor-pointer">
+                      <input
+                        type="checkbox"
+                        id="available"
+                        checked={formData.available}
+                        onChange={(e) => setFormData({ ...formData, available: e.target.checked })}
+                        className="h-6 w-6 rounded border-gray-400 text-green-600 focus:ring-green-500 cursor-pointer"
+                      />
+                      <Label htmlFor="available" className="cursor-pointer font-medium text-gray-900 text-base flex-1">
+                        ✅ Producto Disponible para la Venta
+                      </Label>
                     </div>
                   </div>
 
@@ -528,6 +560,14 @@ export default function AdminProductosPage() {
                   >
                     <ZoomIn className="h-8 w-8 text-white" />
                   </button>
+                  
+                  {/* Availability Badge */}
+                  <div className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-bold text-white ${
+                    product.available ? 'bg-green-500' : 'bg-red-500'
+                  }`}>
+                    {product.available ? 'DISPONIBLE' : 'NO DISPONIBLE'}
+                  </div>
+                  
                   {product.featured && (
                     <div className="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
                       <Star className="h-3 w-3 fill-current" />
@@ -553,6 +593,16 @@ export default function AdminProductosPage() {
                       )}
                     </div>
                   )}
+                  
+                  {/* Availability Switch */}
+                  <div className="flex items-center justify-between mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <span className="text-sm font-medium text-gray-700">Disponible</span>
+                    <Switch
+                      checked={product.available}
+                      onCheckedChange={() => toggleAvailability(product)}
+                    />
+                  </div>
+                  
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -585,9 +635,9 @@ export default function AdminProductosPage() {
                   <TableHead className="w-20">Imagen</TableHead>
                   <TableHead>Título</TableHead>
                   <TableHead>Categoría</TableHead>
-                  <TableHead>Condición</TableHead>
                   <TableHead className="text-center">Pallets</TableHead>
                   <TableHead className="text-center">Unidades</TableHead>
+                  <TableHead className="text-center">Disponibilidad</TableHead>
                   <TableHead className="text-center">Estado</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
@@ -611,12 +661,22 @@ export default function AdminProductosPage() {
                     <TableCell>
                       <Badge variant="outline">{product.category}</Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-gray-600">{product.condition}</TableCell>
                     <TableCell className="text-center">
                       {product.quantity > 0 ? product.quantity : "-"}
                     </TableCell>
                     <TableCell className="text-center">
                       {product.units_per_pallet > 0 ? product.units_per_pallet : "-"}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <Switch
+                          checked={product.available}
+                          onCheckedChange={() => toggleAvailability(product)}
+                        />
+                        <Badge className={product.available ? "bg-green-500" : "bg-red-500"}>
+                          {product.available ? "Disponible" : "No disponible"}
+                        </Badge>
+                      </div>
                     </TableCell>
                     <TableCell className="text-center">
                       {product.featured ? (

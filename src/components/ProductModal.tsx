@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import {
   Dialog,
@@ -10,8 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Package, CheckCircle, ZoomIn, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { MessageCircle, Package, ZoomIn, ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Product } from "@/lib/products";
+import { useState } from "react";
 
 interface ProductModalProps {
   product: Product;
@@ -24,15 +24,10 @@ export default function ProductModal({
   open,
   onOpenChange,
 }: ProductModalProps) {
-  const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
   
   const allImages = [product.image_url, ...(product.additional_images || [])];
-
-  const openImageViewer = (index: number) => {
-    setCurrentImageIndex(index);
-    setImageViewerOpen(true);
-  };
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
@@ -42,32 +37,90 @@ export default function ProductModal({
     setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
   };
 
+  const openImageViewer = () => {
+    setImageViewerOpen(true);
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-brand to-brand-dark bg-clip-text text-transparent">
+            <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-brand to-brand-dark bg-clip-text text-transparent">
               {product.title}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-6">
-            <div className="relative h-80 rounded-lg overflow-hidden bg-gray-100 group cursor-pointer" onClick={() => openImageViewer(0)}>
-              <Image
-                src={product.image_url}
-                alt={product.title}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <ZoomIn className="h-12 w-12 text-white" />
+            {/* Main Image with Navigation */}
+            <div className="relative">
+              <div className="relative h-96 rounded-lg overflow-hidden bg-gray-100 group">
+                <Image
+                  src={allImages[currentImageIndex]}
+                  alt={product.title}
+                  fill
+                  className="object-cover"
+                />
+                
+                {/* Zoom Button */}
+                <button
+                  onClick={openImageViewer}
+                  className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition opacity-0 group-hover:opacity-100"
+                >
+                  <ZoomIn className="w-5 h-5" />
+                </button>
+
+                {/* Navigation Arrows */}
+                {allImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevImage}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                  </>
+                )}
               </div>
+
+              {/* Thumbnails */}
+              {allImages.length > 1 && (
+                <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                  {allImages.map((img, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition ${
+                        currentImageIndex === index
+                          ? "border-brand shadow-lg"
+                          : "border-gray-200 hover:border-gray-400"
+                      }`}
+                    >
+                      <Image
+                        src={img}
+                        alt={`${product.title} - ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div>
+            <div className="flex gap-2">
               <Badge className="bg-gradient-to-r from-brand to-brand-dark text-white text-sm px-4 py-1">
                 {product.category}
+              </Badge>
+              
+              <Badge className={product.available ? "bg-green-500 text-white" : "bg-red-500 text-white"}>
+                {product.available ? "Disponible" : "No Disponible"}
               </Badge>
             </div>
 
@@ -81,10 +134,10 @@ export default function ProductModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-brand/5 p-4 rounded-lg border border-brand/20">
                 <div className="flex items-center mb-2">
-                  <CheckCircle className="w-5 h-5 text-brand mr-2" />
-                  <h4 className="font-semibold text-gray-900">Condición</h4>
+                  <Package className="w-5 h-5 text-brand mr-2" />
+                  <h4 className="font-semibold text-gray-900">Precio</h4>
                 </div>
-                <p className="text-gray-600">{product.condition}</p>
+                <p className="text-gray-600">Variado</p>
               </div>
 
               {product.quantity > 0 && (
@@ -93,37 +146,10 @@ export default function ProductModal({
                     <Package className="w-5 h-5 text-brand mr-2" />
                     <h4 className="font-semibold text-gray-900">Cantidad</h4>
                   </div>
-                  <p className="text-gray-600">{product.quantity} unidades</p>
+                  <p className="text-gray-600">{product.quantity} pallets disponibles</p>
                 </div>
               )}
             </div>
-
-            {product.additional_images && product.additional_images.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                  Imágenes Adicionales
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {product.additional_images.map((img, index) => (
-                    <div 
-                      key={index} 
-                      className="relative h-32 rounded-lg overflow-hidden bg-gray-100 group cursor-pointer"
-                      onClick={() => openImageViewer(index + 1)}
-                    >
-                      <Image
-                        src={img}
-                        alt={`${product.title} - imagen ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <ZoomIn className="h-8 w-8 text-white" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div className="bg-gradient-to-br from-brand/5 to-white p-6 rounded-lg border-2 border-brand/20">
               <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -151,41 +177,37 @@ export default function ProductModal({
         </DialogContent>
       </Dialog>
 
-      {/* Image Viewer Modal */}
+      {/* Full Screen Image Viewer */}
       <Dialog open={imageViewerOpen} onOpenChange={setImageViewerOpen}>
         <DialogContent className="max-w-[95vw] h-[95vh] bg-black/95 border-none p-0">
           <button
             onClick={() => setImageViewerOpen(false)}
-            className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition"
+            className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition"
           >
-            <X className="h-6 w-6" />
+            <X className="w-6 h-6" />
           </button>
           
           <div className="relative h-full flex items-center justify-center p-8">
             <img
               src={allImages[currentImageIndex]}
-              alt="Product"
+              alt={product.title}
               className="max-h-full max-w-full object-contain"
             />
             
             {allImages.length > 1 && (
               <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white h-12 w-12"
+                <button
                   onClick={prevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition"
                 >
-                  <ChevronLeft className="h-8 w-8" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white h-12 w-12"
+                  <ChevronLeft className="w-8 h-8" />
+                </button>
+                <button
                   onClick={nextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition"
                 >
-                  <ChevronRight className="h-8 w-8" />
-                </Button>
+                  <ChevronRight className="w-8 h-8" />
+                </button>
                 
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/10 px-4 py-2 rounded-full text-white">
                   {currentImageIndex + 1} / {allImages.length}

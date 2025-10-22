@@ -17,6 +17,7 @@ export type Database = {
       products: {
         Row: {
           additional_images: string[] | null
+          available: boolean | null
           category: string
           condition: string | null
           created_at: string | null
@@ -31,6 +32,7 @@ export type Database = {
         }
         Insert: {
           additional_images?: string[] | null
+          available?: boolean | null
           category: string
           condition?: string | null
           created_at?: string | null
@@ -45,6 +47,7 @@ export type Database = {
         }
         Update: {
           additional_images?: string[] | null
+          available?: boolean | null
           category?: string
           condition?: string | null
           created_at?: string | null
