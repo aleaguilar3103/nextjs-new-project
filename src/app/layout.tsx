@@ -4,15 +4,22 @@ import "./globals.css";
 
 // -----------------------------------------------------
 // CONFIGURACIÓN GLOBAL DE METADATA (SEO)
-// Basado en el contenido de la web y el App Router de Next.js
+// El título de Open Graph (para compartir) fue igualado al Título de Google.
 // -----------------------------------------------------
+
+// El título que quieres ver en GOOGLE y al COMPARTIR
+const MAIN_SEO_TITLE =
+  "Su Proveedor Oficial de Mercancía de Liquidación Premium en Costa Rica";
+const MAIN_OG_DESCRIPTION =
+  "Establezca una relación sólida con su fuente directa de pallets y contenedores de grandes minoristas de EE. UU. ¡Transparencia, Variedad y Precios Justos!";
+const MAIN_URL = "https://www.aoliquidationwarehouse.com/";
+const OG_IMAGE_URL =
+  "https://storage.googleapis.com/msgsndr/pvSYCYQR9RHbeg9BXuIL/media/6902623210e460f861271016.png";
 
 export const metadata: Metadata = {
   // 1. METADATOS BÁSICOS (PARA GOOGLE)
   title: {
-    // Título principal basado en el banner. Minimizando capitalización para mejor SEO.
-    default:
-      "Su Proveedor Oficial de Mercancía de Liquidación Premium en Costa Rica",
+    default: MAIN_SEO_TITLE,
     template: "%s | AO Liquidation Warehouse",
   },
 
@@ -22,15 +29,13 @@ export const metadata: Metadata = {
 
   // 2. METADATOS DE REDES SOCIALES (OPEN GRAPH)
   openGraph: {
-    title:
-      "AO Liquidation Warehouse - Lotes, Pallets y Contenedores para Reventa",
-    description:
-      "Establezca una relación sólida con su fuente directa de pallets y contenedores de grandes minoristas de EE. UU. ¡Transparencia, Variedad y Precios Justos!",
-    url: "https://www.aoliquidationwarehouse.com/", // Reemplaza con tu dominio final
+    title: MAIN_SEO_TITLE, // *** ESTA LÍNEA FUE AJUSTADA AL TÍTULO PRINCIPAL ***
+    description: MAIN_OG_DESCRIPTION,
+    url: MAIN_URL,
     siteName: "AO Liquidation Warehouse",
     images: [
       {
-        url: "https://storage.googleapis.com/msgsndr/pvSYCYQR9RHbeg9BXuIL/media/6902623210e460f861271016.png", // URL de tu imagen
+        url: OG_IMAGE_URL,
         width: 1200,
         height: 630,
         alt: "Lotes de Liquidación de Electrodomésticos y Construcción",
@@ -50,17 +55,15 @@ export const metadata: Metadata = {
     "electrodomésticos liquidación",
   ],
   authors: [{ name: "AO Liquidation Warehouse" }],
-  metadataBase: new URL("https://www.aoliquidationwarehouse.com/"),
+  metadataBase: new URL(MAIN_URL),
 
   // 4. TWITTER CARDS (PARA TWITTER/X)
   twitter: {
     card: "summary_large_image",
-    title: "AO Liquidation Warehouse",
+    title: MAIN_SEO_TITLE,
     description:
       "Encuentra las mejores ofertas en lotes de liquidación para tu negocio.",
-    images: [
-      "https://storage.googleapis.com/msgsndr/pvSYCYQR9RHbeg9BXuIL/media/6902623210e460f861271016.png",
-    ],
+    images: [OG_IMAGE_URL],
   },
 };
 
@@ -68,7 +71,6 @@ export const metadata: Metadata = {
 // CÓDIGO DE COMPONENTE DE LAYOUT ORIGINAL
 // -----------------------------------------------------
 
-// Importaciones de tus componentes Header y Footer
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
