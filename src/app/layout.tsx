@@ -4,24 +4,28 @@ import "./globals.css";
 
 // -----------------------------------------------------
 // CONFIGURACIÓN GLOBAL DE METADATA (SEO)
-// Esto se aplica a TODAS las páginas de la web.
+// Basado en el contenido de la web y el App Router de Next.js
 // -----------------------------------------------------
 
 export const metadata: Metadata = {
   // 1. METADATOS BÁSICOS (PARA GOOGLE)
   title: {
+    // Título principal basado en el banner. Minimizando capitalización para mejor SEO.
     default:
-      "AO Liquidation Warehouse | Electrodomésticos y Lotes de Liquidación", // Título principal que aparecerá en Google
-    template: "%s | AO Liquidation Warehouse", // Usado para añadir el nombre del sitio a otros títulos
+      "Su Proveedor Oficial de Mercancía de Liquidación Premium en Costa Rica",
+    template: "%s | AO Liquidation Warehouse",
   },
+
+  // Descripción optimizada usando el texto de Misión, Visión y Principios.
   description:
-    "Encuentra electrodomésticos, equipos de construcción y lotes de liquidación de alta calidad a precios inmejorables. ¡Ideal para reventa y proyectos!", // Descripción que aparece bajo el título en Google
+    "Accede a productos de liquidación de calidad y precios inmejorables. Brindamos programas flexibles, transparencia y acompañamiento. Con más de 15 años de experiencia, ofrecemos lotes, pallets y contenedores 100% vírgenes.",
 
   // 2. METADATOS DE REDES SOCIALES (OPEN GRAPH)
   openGraph: {
-    title: "AO Liquidation Warehouse - Los mejores lotes de reventa",
+    title:
+      "AO Liquidation Warehouse - Lotes, Pallets y Contenedores para Reventa",
     description:
-      "Electrodomésticos, materiales de construcción y más en lotes de liquidación. Ahorra y maximiza tus ganancias.",
+      "Establezca una relación sólida con su fuente directa de pallets y contenedores de grandes minoristas de EE. UU. ¡Transparencia, Variedad y Precios Justos!",
     url: "https://www.aoliquidationwarehouse.com/", // Reemplaza con tu dominio final
     siteName: "AO Liquidation Warehouse",
     images: [
@@ -38,12 +42,12 @@ export const metadata: Metadata = {
 
   // 3. METADATOS ADICIONALES
   keywords: [
-    "liquidación",
-    "electrodomésticos",
-    "lotes",
-    "construcción",
-    "reventa",
-    "almacén",
+    "liquidación Costa Rica",
+    "pallets de liquidación",
+    "contenedores de liquidación",
+    "lotes para reventa",
+    "mercadotería saldos",
+    "electrodomésticos liquidación",
   ],
   authors: [{ name: "AO Liquidation Warehouse" }],
   metadataBase: new URL("https://www.aoliquidationwarehouse.com/"),
@@ -64,7 +68,7 @@ export const metadata: Metadata = {
 // CÓDIGO DE COMPONENTE DE LAYOUT ORIGINAL
 // -----------------------------------------------------
 
-// Importaciones de tus componentes Header y Footer (asegúrate de que estas rutas sean correctas)
+// Importaciones de tus componentes Header y Footer
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
