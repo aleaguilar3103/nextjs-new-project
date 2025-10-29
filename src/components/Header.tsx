@@ -10,7 +10,6 @@ import { usePathname } from "next/navigation";
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const isHomePage = pathname === "/";
 
   const navItems = [
     { href: "/", label: "Inicio" },
@@ -21,7 +20,7 @@ export default function Header() {
   ];
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 ${isHomePage ? 'bg-transparent' : 'bg-gradient-to-r from-brand to-brand-dark shadow-lg'}`}>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-brand to-brand-dark shadow-lg">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}

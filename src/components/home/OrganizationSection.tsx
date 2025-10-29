@@ -21,22 +21,10 @@ export default function OrganizationSection() {
                 <CheckCircle className="w-6 h-6 text-brand flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Control de Lote y Distribución
+                    Asesorías Personalizadas para tu Negocio
                   </h3>
                   <p className="text-gray-600">
-                    Cada lote está asociado a un número de referencia y origen específico, lo que permite un seguimiento preciso desde la bodega hasta su destino.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-6 h-6 text-brand flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Procesos de Clasificación Rigurosos
-                  </h3>
-                  <p className="text-gray-600">
-                    Trabajamos bajo un estricto protocolo de clasificación (A, B, C) para reducir la incertidumbre sobre la condición del inventario.
+                    Te acompañamos en cada etapa del proceso de compra para maximizar la rentabilidad de tu inversión. Nuestro equipo analiza tus necesidades y te guía en la selección de los lotes que mejor se adaptan al tipo de negocio que manejas.
                   </p>
                 </div>
               </div>

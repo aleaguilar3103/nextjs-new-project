@@ -182,9 +182,12 @@ export default function ContactoPage() {
                     <h4 className="font-semibold text-gray-900 mb-1">
                       Teléfono
                     </h4>
-                    <p className="text-gray-600">+506 7191 0009</p>
+                    <p className="text-gray-600">+506 7191 0009</p>
                     <p className="text-sm text-gray-500">
-                      Lun - Vie: 9:00 AM - 6:00 PM
+                      Lunes a Viernes: 8:00 AM – 5:45 PM
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Sábado: 8:00 AM – 12:00 MD
                     </p>
                   </div>
                 </div>
@@ -227,11 +230,11 @@ export default function ContactoPage() {
                 <div className="space-y-2 text-gray-600">
                   <div className="flex justify-between">
                     <span className="font-medium">Lunes - Viernes:</span>
-                    <span>9:00 AM - 6:00 PM</span>
+                    <span>8:00 AM - 5:45 PM</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Sábado:</span>
-                    <span>10:00 AM - 2:00 PM</span>
+                    <span>8:00 AM - 12:00 MD</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Domingo:</span>

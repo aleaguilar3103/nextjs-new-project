@@ -7,6 +7,7 @@ import { MessageCircle } from "lucide-react";
 import { useState } from "react";
 import ProductModal from "./ProductModal";
 import type { Product } from "@/lib/products";
+import Link from "next/link";
 
 interface ProductCardProps {
   product: Product;
@@ -44,7 +45,13 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="space-y-2 mb-4">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Precio:</span>
-              <span className="font-semibold text-gray-900">Variado</span>
+              <Link 
+                href="/contacto" 
+                className="font-semibold text-brand hover:text-brand-dark underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Cotizar
+              </Link>
             </div>
             {product.quantity > 0 && (
               <div className="flex justify-between text-sm">

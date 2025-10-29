@@ -1,4 +1,4 @@
-import { Target, FileCheck, Truck } from "lucide-react";
+import { Target, Truck } from "lucide-react";
 
 export default function TrustSection() {
   const features = [
@@ -6,11 +6,6 @@ export default function TrustSection() {
       icon: Target,
       title: "Compromiso a Largo Plazo",
       description: "Nos enfocamos en ser su proveedor constante y confiable. Establecemos flujos de inventario que crecen con su negocio.",
-    },
-    {
-      icon: FileCheck,
-      title: "Información Clave y Evaluación",
-      description: "Minimizamos el riesgo. Le proporcionamos el origen, clasificación del lote y toda la información disponible para una decisión de inversión informada.",
     },
     {
       icon: Truck,
@@ -22,7 +17,7 @@ export default function TrustSection() {
   return (
     <section className="py-20 px-4 bg-white">
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {features.map((feature, index) => (
             <div
               key={index}
